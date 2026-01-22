@@ -19,6 +19,7 @@ api.interceptors.request.use(
 
 export const fetchProducts = async () => {
   const response = await api.get("/products");
+  console.log("api call")
   return response.data;
 };
 

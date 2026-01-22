@@ -1,61 +1,58 @@
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { MdOutlineShoppingCart } from "react-icons/md";
-import { NavLink, useParams } from "react-router-dom";
-import { fetchProductDetails } from "../ApiCalls/apiCalls";
+import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import type { Product } from "./ProductCard";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addItemToCart,
+  removeItemFromCart,
+  type RootState,
+} from "../store/CartSlice";
 
-export default function ShowProductDetails() {
+export default function ShowProductDetails({id} : {id?: number}) {
   const { productId } = useParams();
+
+  const product: Product[] = useOutletContext();
+  const cart = useSelector((state: RootState) => state.cart);
 
   const [item, setItem] = useState<Product>();
 
-  const { data, isError, isLoading, error } = useQuery({
-    queryKey: ["fetchSingleProduct"],
-    queryFn: () => fetchProductDetails(Number(productId)),
-  });
+  const dispatch = useDispatch();
+  const [cust, setCust] = useState<string>();
 
   useEffect(() => {
-    setItem(data);
-  }, [data]);
+    setItem(product.find((items) => items.id === (id ?? Number(productId))));
+    const cartItem = cart.find((item) => item.product === (id ?? Number(productId)));
+    if (cartItem) {
+      setAdded(true);
+      setCount(cartItem.count);
+      setCust(cartItem.Customization)
+    }
+  }, [productId]);
 
-  const [count, setCount] = useState(0);
-  //   const [item, setItem] = useMemo(() => data?.produ)
+  const [count, setCount] = useState(1);
 
   const [added, setAdded] = useState<boolean>(false);
 
   const handleAdd = () => {
-    // setCart((prev) =>
-    //   prev.some((c) => c.item.id === item.id)
-    //     ? prev
-    //     : [...prev, { item, count: 1 }],
-    // );
-    // if (count == 0) setCount((prev) => prev + 1);
+    if (item) dispatch(addItemToCart(item.id));
     setAdded(true);
   };
 
   const handleIncrement = () => {
-    // setCart((prev) =>
-    //   prev
-    //     .map((c) => (c.item.id === item.id ? { ...c, count: c.count + 1 } : c))
-    //     .filter((c) => c.count > 0),
-    // );
-    // if (count < item.stock) setCount((prev) => prev + 1);
+    if (item) {
+      dispatch(addItemToCart(item.id));
+      if (count < item.stock) setCount((prev) => prev + 1);
+    }
   };
 
   const handleDecrement = () => {
-    // setCart((prev) =>
-    //   prev
-    //     .map((c) => (c.item.id === item.id ? { ...c, count: c.count - 1 } : c))
-    //     .filter((c) => c.count > 0),
-    // );
-    // if (count > 0) setCount((prev) => prev - 1);
-    // if (count === 1) setAdded(false);
+    if (item) {
+      dispatch(removeItemFromCart(item.id));
+      if (count > 0) setCount((prev) => prev - 1);
+      if (count === 1) setAdded(false);
+    }
   };
-
-  if (isError)
-    return <div className="flex justify-center">Error: {error.message}</div>;
-  if (isLoading) return <div className="flex justify-center">Loading...</div>;
 
   return (
     <div className="flex items-center justify-center p-4">
@@ -90,6 +87,7 @@ export default function ShowProductDetails() {
                 </p>
               )}
             </div>
+            <p>{cust ?? cust}</p>
             {!added ? (
               <div className="flex justify-between">
                 <button
@@ -99,11 +97,11 @@ export default function ShowProductDetails() {
                   <MdOutlineShoppingCart /> Add To Cart
                 </button>
                 <div className="flex flex-row justify-center items-center border border-yellow-800 bg-yellow-600 p-3 rounded-2xl mt-3">
-                  <NavLink to={"customize"}>Customize</NavLink>
+                  <NavLink to={id ? `/product/${id}/customize` : "customize"}>Customize</NavLink>
                 </div>
               </div>
             ) : (
-              <div className="">
+              <div className="flex justify-between">
                 <div className="flex flex-row gap-4">
                   <button
                     className="flex flex-row justify-center items-center border border-gray-500 bg-white p-3 rounded-2xl mt-3 text-black"
@@ -121,8 +119,8 @@ export default function ShowProductDetails() {
                     -
                   </button>
                 </div>
-                <div className="text-white">
-                  <NavLink to={"customize"}>Customize</NavLink>
+                <div className="flex flex-row justify-center items-center border border-yellow-800 bg-yellow-600 p-3 rounded-2xl mt-3">
+                  <NavLink to={id ? `/product/${id}/customize` : "customize"}>Customize</NavLink>
                 </div>
               </div>
             )}

@@ -1,60 +1,60 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { MdOutlineShoppingCart } from "react-icons/md";
-import { useParams } from "react-router-dom";
-import { fetchProductDetails } from "../ApiCalls/apiCalls";
+import { useOutletContext, useParams } from "react-router-dom";
 import type { Product } from "./ProductCard";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addItemToCart,
+  removeItemFromCart,
+  setCustomization,
+  type RootState,
+} from "../store/CartSlice";
 
-export default function CustomizeProduct() {
+export default function CustomizeProduct({ id }: { id?: number }) {
   const { productId } = useParams();
+
+  const product: Product[] = useOutletContext();
+  const cart = useSelector((state: RootState) => state.cart);
+  const [cust, setCust] = useState<string>();
+
   const [item, setItem] = useState<Product>();
 
-  const { data, isError, isLoading, error } = useQuery({
-    queryKey: ["fetchSingleProduct"],
-    queryFn: () => fetchProductDetails(Number(productId)),
-  });
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setItem(data);
-  }, [data]);
+    setItem(product.find((items) => items.id === (id ?? Number(productId))));
+    const cartItem = cart.find(
+      (item) => item.product === (id ?? Number(productId)),
+    );
+    if (cartItem) {
+      setAdded(true);
+      setCount(cartItem.count);
+    }
+  }, [productId]);
 
-  const [count, setCount] = useState(0);
-  //   const [item, setItem] = useMemo(() => data?.produ)
+  const [count, setCount] = useState(1);
 
   const [added, setAdded] = useState<boolean>(false);
 
   const handleAdd = () => {
-    // setCart((prev) =>
-    //   prev.some((c) => c.item.id === item.id)
-    //     ? prev
-    //     : [...prev, { item, count: 1 }],
-    // );
-    // if (count == 0) setCount((prev) => prev + 1);
+    if (item) dispatch(addItemToCart(item.id));
     setAdded(true);
   };
 
   const handleIncrement = () => {
-    // setCart((prev) =>
-    //   prev
-    //     .map((c) => (c.item.id === item.id ? { ...c, count: c.count + 1 } : c))
-    //     .filter((c) => c.count > 0),
-    // );
-    // if (count < item.stock) setCount((prev) => prev + 1);
+    if (item) {
+      dispatch(addItemToCart(item.id));
+      if (count < item.stock) setCount((prev) => prev + 1);
+    }
   };
 
   const handleDecrement = () => {
-    // setCart((prev) =>
-    //   prev
-    //     .map((c) => (c.item.id === item.id ? { ...c, count: c.count - 1 } : c))
-    //     .filter((c) => c.count > 0),
-    // );
-    // if (count > 0) setCount((prev) => prev - 1);
-    // if (count === 1) setAdded(false);
+    if (item) {
+      dispatch(removeItemFromCart(item.id));
+      if (count > 0) setCount((prev) => prev - 1);
+      if (count === 1) setAdded(false);
+    }
   };
-
-  if (isError)
-    return <div className="flex justify-center">Error: {error.message}</div>;
-  if (isLoading) return <div className="flex justify-center">Loading...</div>;
 
   return (
     <div className="flex items-center justify-center p-4">
@@ -93,32 +93,62 @@ export default function CustomizeProduct() {
               <textarea
                 name=""
                 id=""
+                defaultValue={cust ?? cust}
+                onChange={(e) => setCust(e.target.value)}
                 required
                 className="border-2 rounded border-white p-2 px-5"
                 placeholder="Enter customizations"
               ></textarea>
             </div>
             {!added ? (
-              <button
-                className="flex flex-row justify-center items-center border border-blue-500 bg-blue-500 p-3 rounded-2xl mt-3"
-                onClick={handleAdd}
-              >
-                <MdOutlineShoppingCart /> Add To Cart
-              </button>
-            ) : (
-              <div className="flex flex-row gap-4">
+              <div className="flex justify-between">
                 <button
-                  className="flex flex-row justify-center items-center border border-gray-500 bg-white p-3 rounded-2xl mt-3 text-black"
-                  onClick={handleIncrement}
+                  className="flex flex-row justify-center items-center border border-blue-500 bg-blue-500 p-3 rounded-2xl mt-3"
+                  onClick={handleAdd}
                 >
-                  +
+                  <MdOutlineShoppingCart /> Add To Cart
                 </button>
-                <div className="flex justify-center items-center">{count}</div>
                 <button
-                  className="flex flex-row justify-center items-center border border-gray-500 bg-white p-3 rounded-2xl mt-3 text-black"
-                  onClick={handleDecrement}
+                  className="flex flex-row justify-center items-center border border-green-800 bg-green-600 p-3 rounded-2xl mt-3"
+                  onClick={() => {
+                    if (cust)
+                      dispatch(
+                        setCustomization({ id: item.id, customization: cust }),
+                      );
+                  }}
                 >
-                  -
+                  Save
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-between">
+                <div className="flex flex-row gap-4">
+                  <button
+                    className="flex flex-row justify-center items-center border border-gray-500 bg-white p-3 rounded-2xl mt-3 text-black"
+                    onClick={handleIncrement}
+                  >
+                    +
+                  </button>
+                  <div className="flex justify-center items-center">
+                    {count}
+                  </div>
+                  <button
+                    className="flex flex-row justify-center items-center border border-gray-500 bg-white p-3 rounded-2xl mt-3 text-black"
+                    onClick={handleDecrement}
+                  >
+                    -
+                  </button>
+                </div>
+                <button
+                  className="flex flex-row justify-center items-center border border-green-800 bg-green-600 p-3 rounded-2xl mt-3"
+                  onClick={() => {
+                    if (cust)
+                      dispatch(
+                        setCustomization({ id: item.id, customization: cust }),
+                      );
+                  }}
+                >
+                  Save
                 </button>
               </div>
             )}

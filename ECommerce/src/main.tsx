@@ -10,6 +10,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ShowProductDetails from "./components/ShowProductDetails.tsx";
 import CustomizeProduct from "./components/CustomizeProduct.tsx";
 import LoginFunction from "./components/AuthComponent.tsx";
+import { Provider } from "react-redux";
+import { store } from "./store/CartSlice.ts";
+import Cart from "./tabs/Cart.tsx";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +23,7 @@ const router = createBrowserRouter([
       { path: "/", element: <HomePage /> },
       { path: "product", element: <ListProducts /> },
       { path: "about", element: <About /> },
+      { path: "cart", element: <Cart /> },
       { path: "product/:productId", element: <ShowProductDetails /> },
       { path: "product/:productId/customize", element: <CustomizeProduct /> },
     ],
@@ -34,8 +38,10 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </Provider>
   </StrictMode>,
 );
