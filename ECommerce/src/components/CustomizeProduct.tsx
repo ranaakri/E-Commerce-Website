@@ -39,12 +39,14 @@ export default function CustomizeProduct({ id }: { id?: number }) {
   const handleAdd = () => {
     if (item) dispatch(addItemToCart(item.id));
     setAdded(true);
+    localStorage.setItem("data", JSON.stringify(cart));
   };
 
   const handleIncrement = () => {
     if (item) {
       dispatch(addItemToCart(item.id));
       if (count < item.stock) setCount((prev) => prev + 1);
+      localStorage.setItem("data", JSON.stringify(cart));
     }
   };
 
@@ -53,6 +55,7 @@ export default function CustomizeProduct({ id }: { id?: number }) {
       dispatch(removeItemFromCart(item.id));
       if (count > 0) setCount((prev) => prev - 1);
       if (count === 1) setAdded(false);
+      localStorage.setItem("data", JSON.stringify(cart));
     }
   };
 
@@ -115,6 +118,7 @@ export default function CustomizeProduct({ id }: { id?: number }) {
                       dispatch(
                         setCustomization({ id: item.id, customization: cust }),
                       );
+                      localStorage.setItem("data", JSON.stringify(cart));
                   }}
                 >
                   Save
@@ -146,6 +150,7 @@ export default function CustomizeProduct({ id }: { id?: number }) {
                       dispatch(
                         setCustomization({ id: item.id, customization: cust }),
                       );
+                      localStorage.setItem("data", JSON.stringify(cart));
                   }}
                 >
                   Save

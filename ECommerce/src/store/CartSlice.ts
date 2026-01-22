@@ -3,7 +3,6 @@ import {
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import type { Product } from "../components/ProductCard";
 import { productSlice } from "./ItemStore";
 
 interface ICartItem {
@@ -53,6 +52,10 @@ const cartSlice = createSlice({
       }
     },
 
+    addCartList: (state, action: PayloadAction<ICartItem[]>) => {
+        state.push(...action.payload);
+    },
+
     setCustomization: (state, action: PayloadAction<Customization>) => {
       const id = action.payload.id;
       const existingItem = state.find((item) => item.product === id);
@@ -65,7 +68,7 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addItemToCart, removeItemFromCart, setCustomization } =
+export const { addItemToCart, removeItemFromCart, setCustomization, addCartList } =
   cartSlice.actions;
 
 export const store = configureStore({

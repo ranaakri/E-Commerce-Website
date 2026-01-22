@@ -6,7 +6,7 @@ import { useEffect, useMemo } from "react";
 import type { Product } from "./components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import { addProductList } from "./store/ItemStore";
-import type { RootState } from "./store/CartSlice";
+import { addCartList, type RootState } from "./store/CartSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -25,6 +25,9 @@ function App() {
 
   useEffect(() => {
     dispatch(addProductList(product));
+    const data = localStorage.getItem("data");
+    console.log(data)
+    if (data) dispatch(addCartList(JSON.parse(data)));
   }, []);
 
   if (isError)
