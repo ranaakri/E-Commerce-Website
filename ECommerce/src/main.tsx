@@ -12,21 +12,65 @@ import LoginFunction from "./components/AuthComponent.tsx";
 import { Provider } from "react-redux";
 import { store } from "./store/CartSlice.ts";
 import Cart from "./tabs/Cart.tsx";
+import { ProtectedRoute } from "./components/AuthProvider.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      { index: true, path: "/auth", element: <LoginFunction /> },
-      { path: "/", element: <HomePage /> },
-      { path: "product", element: <ListProducts /> },
-      { path: "about", element: <About /> },
-      { path: "cart", element: <Cart /> },
-      { path: "product/:productId", element: <ShowProductDetails /> },
-      { path: "product/:productId/customize", element: <CustomizeProduct /> },
+      {
+        index: true,
+        path: "/",
+        element: (
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "product",
+        element: (
+          <ProtectedRoute>
+            <ListProducts />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "about",
+        element: (
+          <ProtectedRoute>
+            <About />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "cart",
+        element: (
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "product/:productId",
+        element: (
+          <ProtectedRoute>
+            <ShowProductDetails />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "product/:productId/customize",
+        element: (
+          <ProtectedRoute>
+            <CustomizeProduct />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
+  { path: "/auth", element: <LoginFunction /> },
   // {
   //   path: "",
   //   element: <InvalidPath />,

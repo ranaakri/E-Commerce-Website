@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useForm } from 'react-hook-form';
+import { useNavigate } from "react-router-dom";
 
 interface User {
   user: string | null;
@@ -10,6 +11,7 @@ export default function LoginFunction() {
   const ref = useRef<HTMLInputElement>(null);
 
   const {register, handleSubmit} = useForm<User>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (ref.current) {
@@ -19,7 +21,10 @@ export default function LoginFunction() {
 
   const onSubmit = (data: User) => {
     if(data.user === "Krish" && data.password === "password"){
-        document.cookie = "username=JohnDoe; path=/; max-age=3600";
+        document.cookie = "token=xyz; path=/; max-age=3600";
+        navigate("", {replace: true})
+    }else{
+        alert("Wrong Password")
     }
   }
 

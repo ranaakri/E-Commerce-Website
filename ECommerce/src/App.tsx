@@ -26,7 +26,6 @@ function App() {
   useEffect(() => {
     dispatch(addProductList(product));
     const data = localStorage.getItem("data");
-    console.log(data)
     if (data) dispatch(addCartList(JSON.parse(data)));
   }, []);
 
